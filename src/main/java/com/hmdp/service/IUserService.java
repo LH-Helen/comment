@@ -18,5 +18,5 @@ public interface IUserService extends IService<User> {
 
     void sendCode(String phone, HttpSession session);
 
-    void login(LoginFormDTO loginForm, HttpSession session);
+    String login(LoginFormDTO loginForm, HttpSession session);
 }
