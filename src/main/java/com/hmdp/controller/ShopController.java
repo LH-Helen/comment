@@ -32,7 +32,7 @@ public class ShopController {
      * @return 商铺详情数据
      */
     @GetMapping("/{id}")
-    public Result queryShopById(@PathVariable("id") Long id) {
+    public Result queryShopById(@PathVariable("id") Long id) throws InterruptedException {
         Shop shop = shopService.quertById(id);
         return Result.ok(shop);
     }
@@ -58,7 +58,7 @@ public class ShopController {
     @PutMapping
     public Result updateShop(@RequestBody Shop shop) {
         // 写入数据库
-        shopService.updateById(shop);
+        shopService.updateShop(shop);
         return Result.ok();
     }
 
