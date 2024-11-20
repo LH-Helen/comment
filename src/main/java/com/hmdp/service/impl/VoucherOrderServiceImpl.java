@@ -7,12 +7,15 @@ import com.hmdp.service.ISeckillVoucherService;
 import com.hmdp.service.IVoucherOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmdp.utils.RedisIdWorker;
+import com.hmdp.utils.SimpleRedisLock;
 import com.hmdp.utils.UserHolder;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 
 /**
@@ -31,6 +34,9 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
 
     @Autowired
     private RedisIdWorker redisIdWorker;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public Long setKillVoucher(Long voucherId) {
@@ -52,9 +58,20 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
             throw new RuntimeException("已抢光，红豆泥私密马赛！！！");
         }
         Long userId = UserHolder.getUser().getId();
-        synchronized(userId.toString().intern()) {
+        // 创建锁对象
+        SimpleRedisLock lock = new SimpleRedisLock("order:" + userId, stringRedisTemplate);
+        // 获取锁
+        boolean isLock = lock.tryLock(1200L);
+        if(!isLock) {
+            // 获取锁失败，返回错误或重试
+            throw new RuntimeException("亲已经买过了，哒咩得死!");
+        }
+        try {
+            // 获取代理对象（事务）
             IVoucherOrderService proxy = (IVoucherOrderService) AopContext.currentProxy();
             return proxy.createVoucherOrder(voucherId);
+        }finally {
+            lock.unLock();
         }
     }
 
@@ -65,7 +82,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         Integer count = query().eq("user_id", userId).eq("voucher_id", voucherId).count();
         if(count > 0){
             // 用户已购买
-            throw new RuntimeException("亲已经买过了，哒咩得死");
+            throw new RuntimeException("亲已经买过了，哒咩得死!");
         }
 
         boolean success = seckillVoucherService.update()
