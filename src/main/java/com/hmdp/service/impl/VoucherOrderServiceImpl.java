@@ -60,7 +60,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         Long userId = UserHolder.getUser().getId();
         // 创建锁对象
         SimpleRedisLock lock = new SimpleRedisLock("order:" + userId, stringRedisTemplate);
-        // 获取锁
+        // 获取锁 集群情况下的一人一单问题
         boolean isLock = lock.tryLock(1200L);
         if(!isLock) {
             // 获取锁失败，返回错误或重试
@@ -85,6 +85,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
             throw new RuntimeException("亲已经买过了，哒咩得死!");
         }
 
+        // +乐观锁
         boolean success = seckillVoucherService.update()
                 .setSql("stock = stock - 1")
                 .eq("voucher_id", voucherId)
