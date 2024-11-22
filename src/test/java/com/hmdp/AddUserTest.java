@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,14 @@ public class AddUserTest {
     private StringRedisTemplate stringRedisTemplate;
 
     @Test
-    void addUserRedisToken(){
+    void addUserRedisToken() throws IOException {
+
+        File f = new File("token.txt");
+        FileOutputStream fileOutputStream = new FileOutputStream(f);
+
+        OutputStreamWriter writer = new OutputStreamWriter(fileOutputStream, "UTF-8");
+
+
         List<User> users = userService.list();
         for(User user: users){
             String token = UUID.randomUUID().toString(true);
@@ -40,6 +48,10 @@ public class AddUserTest {
             // 存储
             stringRedisTemplate.opsForHash().putAll(LOGIN_USER_KEY+token, userMap);
             stringRedisTemplate.expire(LOGIN_USER_KEY+token, LOGIN_USER_TTL, TimeUnit.MINUTES);
+            writer.append(token).append("\n");
         }
+
+        writer.close();
+        fileOutputStream.close();
     }
 }
