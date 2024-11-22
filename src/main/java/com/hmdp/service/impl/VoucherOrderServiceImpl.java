@@ -9,6 +9,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmdp.utils.RedisIdWorker;
 import com.hmdp.utils.SimpleRedisLock;
 import com.hmdp.utils.UserHolder;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -35,8 +37,11 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     @Autowired
     private RedisIdWorker redisIdWorker;
 
+//    @Resource
+//    private StringRedisTemplate stringRedisTemplate;
+
     @Resource
-    private StringRedisTemplate stringRedisTemplate;
+    private RedissonClient redissonClient;
 
     @Override
     public Long setKillVoucher(Long voucherId) {
@@ -59,9 +64,11 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         }
         Long userId = UserHolder.getUser().getId();
         // 创建锁对象
-        SimpleRedisLock lock = new SimpleRedisLock("order:" + userId, stringRedisTemplate);
+//        SimpleRedisLock lock = new SimpleRedisLock("order:" + userId, stringRedisTemplate);
+        RLock lock = redissonClient.getLock("lock:order:" + userId);
         // 获取锁 集群情况下的一人一单问题
-        boolean isLock = lock.tryLock(1200L);
+//        boolean isLock = lock.tryLock(1200L);
+        boolean isLock = lock.tryLock();
         if(!isLock) {
             // 获取锁失败，返回错误或重试
             throw new RuntimeException("亲已经买过了，哒咩得死!");
@@ -71,7 +78,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
             IVoucherOrderService proxy = (IVoucherOrderService) AopContext.currentProxy();
             return proxy.createVoucherOrder(voucherId);
         }finally {
-            lock.unLock();
+            lock.unlock();
         }
     }
 

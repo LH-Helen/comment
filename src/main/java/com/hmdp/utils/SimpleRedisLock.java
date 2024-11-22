@@ -39,7 +39,7 @@ public class SimpleRedisLock implements ILock{
 
     @Override
     public void unLock(){
-        // 调用lua脚本
+        // 调用lua脚本s
         stringRedisTemplate.execute(
                 UNLOCK_SCRIPT,
                 Collections.singletonList(KEY_PREFIX+name),
