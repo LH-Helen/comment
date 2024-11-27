@@ -1,13 +1,14 @@
 package com.hmdp.service;
 
-import com.hmdp.entity.Blog;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hmdp.dto.UserDTO;
+import com.hmdp.entity.Blog;
 
 import java.util.List;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author 虎哥
@@ -22,4 +23,6 @@ public interface IBlogService extends IService<Blog> {
 
 
     void likeBlog(Long id);
+
+    List<UserDTO> queryBlogLikes(Long id);
 }
