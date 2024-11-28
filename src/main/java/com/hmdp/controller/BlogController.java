@@ -18,9 +18,6 @@ import java.util.List;
  * <p>
  * 前端控制器
  * </p>
- *
- * @author 虎哥
- * @since 2021-12-22
  */
 @RestController
 @RequestMapping("/blog")
@@ -76,5 +73,12 @@ public class BlogController {
     public Result queryBlogLikes(@PathVariable("id") Long id) {
         List<UserDTO> users = blogService.queryBlogLikes(id);
         return Result.ok(users);
+    }
+
+    @GetMapping("/of/user")
+    public Result queryBlogByUserId(Long id, @RequestParam(defaultValue = "1") Integer current){
+        Page<Blog> page = blogService.query().eq("user_id", id).page(new Page<>(current, SystemConstants.MAX_PAGE_SIZE));
+        List<Blog> records = page.getRecords();
+        return Result.ok(records);
     }
 }

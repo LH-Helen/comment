@@ -2,9 +2,12 @@ package com.hmdp.controller;
 
 
 import com.hmdp.dto.Result;
+import com.hmdp.dto.UserDTO;
 import com.hmdp.service.IFollowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * <p>
@@ -30,4 +33,9 @@ public class FollowController {
         return Result.ok(isFollow);
     }
 
+    @GetMapping("/common/{id}")
+    public Result followCommons(@PathVariable Long id){
+        List<UserDTO> users = followService.followCommons(id);
+        return Result.ok(users);
+    }
 }
