@@ -61,7 +61,6 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
             throw new RuntimeException("笔记不存在");
         }
         queryBlogUser(blog);
-        // 查询blog是否被点赞
         return blog;
     }
 
