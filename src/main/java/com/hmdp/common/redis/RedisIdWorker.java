@@ -1,4 +1,4 @@
-package com.hmdp.utils;
+package com.hmdp.common.redis;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;

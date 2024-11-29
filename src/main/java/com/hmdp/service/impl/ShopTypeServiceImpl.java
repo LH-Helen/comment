@@ -1,6 +1,8 @@
 package com.hmdp.service.impl;
 
 import cn.hutool.json.JSONUtil;
+import com.hmdp.common.constant.MessageConstants;
+import com.hmdp.common.exception.ShopTypeException;
 import com.hmdp.entity.ShopType;
 import com.hmdp.mapper.ShopTypeMapper;
 import com.hmdp.service.IShopTypeService;
@@ -38,7 +40,7 @@ public class ShopTypeServiceImpl extends ServiceImpl<ShopTypeMapper, ShopType> i
         List<ShopType> sort = query().orderByAsc("sort").list();
 
         if(sort == null || sort.isEmpty()){
-            throw new RuntimeException("没有商家类型数据");
+            throw new ShopTypeException(MessageConstants.SHOP_TYPE_NOT_FOUND);
         }
 
         stringRedisTemplate.opsForZSet().add("cache:list", sort.stream()

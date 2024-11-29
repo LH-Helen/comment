@@ -1,6 +1,6 @@
 package com.hmdp;
 
-import com.hmdp.utils.RedisIdWorker;
+import com.hmdp.common.redis.RedisIdWorker;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

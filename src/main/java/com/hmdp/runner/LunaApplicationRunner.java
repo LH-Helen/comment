@@ -1,6 +1,8 @@
-package com.hmdp.utils;
+package com.hmdp.runner;
 
 import cn.hutool.json.JSONUtil;
+import com.hmdp.common.constant.RedisConstants;
+import com.hmdp.common.redis.RedisData;
 import com.hmdp.entity.Shop;
 import com.hmdp.service.IShopService;
 import lombok.extern.slf4j.Slf4j;

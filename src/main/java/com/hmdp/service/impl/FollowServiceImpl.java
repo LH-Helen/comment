@@ -2,15 +2,16 @@ package com.hmdp.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.hmdp.common.constant.MessageConstants;
+import com.hmdp.common.exception.FollowException;
 import com.hmdp.dto.UserDTO;
 import com.hmdp.entity.Follow;
-import com.hmdp.entity.User;
 import com.hmdp.mapper.FollowMapper;
 import com.hmdp.service.IFollowService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmdp.service.IUserService;
-import com.hmdp.utils.RedisConstants;
-import com.hmdp.utils.UserHolder;
+import com.hmdp.common.constant.RedisConstants;
+import com.hmdp.common.context.BaseContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -38,9 +39,14 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
     @Override
     public void follow(Long followUserId, Boolean isFollow) {
         // 获取登录用户
-        Long userId = UserHolder.getUser().getId();
+        Long userId = BaseContext.getCurrentId().getId();
         if(isFollow(followUserId) == isFollow){
-            throw new RuntimeException("关注操作异常！");
+            if (isFollow){
+                throw new FollowException(MessageConstants.FOLLOWED);
+            }else{
+                throw new FollowException(MessageConstants.UNFOLLOWED);
+            }
+
         }
 
         String key = RedisConstants.FOLLOW_KEY+userId;
@@ -68,14 +74,14 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
     @Override
     public boolean isFollow(Long followUserId) {
         // 获取登录用户
-        Long userId = UserHolder.getUser().getId();
+        Long userId = BaseContext.getCurrentId().getId();
         Integer count = query().eq("user_id", userId).eq("follow_user_id", followUserId).count();
         return count>0;
     }
 
     @Override
     public List<UserDTO> followCommons(Long id) {
-        Long userId = UserHolder.getUser().getId();
+        Long userId = BaseContext.getCurrentId().getId();
         String userKey = RedisConstants.FOLLOW_KEY + userId;
         String followUserKey = RedisConstants.FOLLOW_KEY + id;
         Set<String> intersect = stringRedisTemplate.opsForSet().intersect(userKey, followUserKey);

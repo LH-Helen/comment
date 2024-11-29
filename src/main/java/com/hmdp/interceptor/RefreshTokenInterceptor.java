@@ -1,7 +1,9 @@
-package com.hmdp.utils;
+package com.hmdp.interceptor;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.hmdp.common.constant.RedisConstants;
+import com.hmdp.common.context.BaseContext;
 import com.hmdp.dto.UserDTO;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -40,7 +42,7 @@ public class RefreshTokenInterceptor implements HandlerInterceptor {
 
         // 保存用户到ThreadLocal
 //        UserHolder.saveUser((UserDTO) user);
-        UserHolder.saveUser(userDTO);
+        BaseContext.setCurrentId(userDTO);
 
         // 刷新token有效期
         stringRedisTemplate.expire(RedisConstants.LOGIN_USER_KEY + token, RedisConstants.LOGIN_USER_TTL, TimeUnit.MINUTES);
@@ -52,6 +54,6 @@ public class RefreshTokenInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        UserHolder.removeUser();
+        BaseContext.removeCurrentId();
     }
 }

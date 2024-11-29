@@ -5,12 +5,15 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hmdp.common.constant.MessageConstants;
+import com.hmdp.common.exception.AccountExistException;
+import com.hmdp.common.exception.LoginFailedException;
 import com.hmdp.dto.LoginFormDTO;
 import com.hmdp.dto.UserDTO;
 import com.hmdp.entity.User;
 import com.hmdp.mapper.UserMapper;
 import com.hmdp.service.IUserService;
-import com.hmdp.utils.RegexUtils;
+import com.hmdp.common.regex.RegexUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -22,8 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.hmdp.utils.RedisConstants.*;
-import static com.hmdp.utils.SystemConstants.USER_NICK_NAME_PREFIX;
+import static com.hmdp.common.constant.RedisConstants.*;
+import static com.hmdp.common.constant.SystemConstants.USER_NICK_NAME_PREFIX;
 
 /**
  * <p>
@@ -45,7 +48,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 校验手机号
         if(RegexUtils.isPhoneInvalid(phone)){
             // 如果不符合，返回错误信息
-            throw new RuntimeException("手机号格式错误");
+            throw new LoginFailedException(MessageConstants.PHONE_ERROR);
         }
 
         // 符合，生成验证码
@@ -66,7 +69,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         String phone = loginForm.getPhone();
         if(RegexUtils.isPhoneInvalid(phone)){
             // 如果不符合，返回错误信息
-            throw new RuntimeException("手机号格式错误");
+            throw new LoginFailedException(MessageConstants.PHONE_ERROR);
         }
         // 校验验证码
 //        Object cachecode = session.getAttribute(phone);
@@ -77,7 +80,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 //        if(cachecode == null ||!cachecode.toString().equals(code)){
         if(cachecode == null ||!cachecode.equals(code)){
             // 不一致，报错
-            throw new RuntimeException("验证码错误");
+            throw new LoginFailedException(MessageConstants.CODE_ERROR);
         }
 
         // 判断用户是否存在
@@ -120,7 +123,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     public UserDTO getUserById(Long id) {
         User user = getById(id);
         if(user == null){
-            throw new RuntimeException("用户未查询到");
+            throw new AccountExistException(MessageConstants.ACCOUNT_NOT_FOUND);
         }
         UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
         return userDTO;

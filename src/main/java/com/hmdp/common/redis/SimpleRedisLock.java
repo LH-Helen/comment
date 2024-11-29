@@ -1,15 +1,14 @@
-package com.hmdp.utils;
+package com.hmdp.common.redis;
 
 import cn.hutool.core.lang.UUID;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.data.redis.core.script.RedisScript;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-public class SimpleRedisLock implements ILock{
+public class SimpleRedisLock implements ILock {
 
     private String name;
     private StringRedisTemplate stringRedisTemplate;

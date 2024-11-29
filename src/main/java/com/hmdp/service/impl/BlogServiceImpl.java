@@ -5,15 +5,17 @@ import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hmdp.common.constant.MessageConstants;
+import com.hmdp.common.exception.BlogExistException;
 import com.hmdp.dto.UserDTO;
 import com.hmdp.entity.Blog;
 import com.hmdp.entity.User;
 import com.hmdp.mapper.BlogMapper;
 import com.hmdp.service.IBlogService;
 import com.hmdp.service.IUserService;
-import com.hmdp.utils.RedisConstants;
-import com.hmdp.utils.SystemConstants;
-import com.hmdp.utils.UserHolder;
+import com.hmdp.common.constant.RedisConstants;
+import com.hmdp.common.constant.SystemConstants;
+import com.hmdp.common.context.BaseContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -55,7 +57,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
     public Blog queryBlogById(Long id) {
         Blog blog = getById(id);
         if (blog == null) {
-            throw new RuntimeException("笔记不存在");
+            throw new BlogExistException(MessageConstants.BLOG_NOT_FOUND);
         }
         queryBlogUser(blog);
         return blog;
@@ -63,7 +65,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
 
     private Boolean isBlogLiked(Long id) {
         // 登录用户
-        UserDTO user = UserHolder.getUser();
+        UserDTO user = BaseContext.getCurrentId();
         if (user == null) {
             return false;
         }
@@ -84,7 +86,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
 
     @Override
     public void likeBlog(Long id) {
-        Long userId = UserHolder.getUser().getId();
+        Long userId = BaseContext.getCurrentId().getId();
         String key = RedisConstants.BLOG_LIKED_KEY + id;
         Boolean isMember = isBlogLiked(id);
 

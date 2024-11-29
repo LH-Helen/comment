@@ -1,4 +1,4 @@
-package com.hmdp.utils;
+package com.hmdp.common.redis;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

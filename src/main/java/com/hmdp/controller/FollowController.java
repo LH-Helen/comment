@@ -1,7 +1,7 @@
 package com.hmdp.controller;
 
 
-import com.hmdp.dto.Result;
+import com.hmdp.common.result.Result;
 import com.hmdp.dto.UserDTO;
 import com.hmdp.service.IFollowService;
 import org.springframework.beans.factory.annotation.Autowired;
