@@ -2,12 +2,12 @@ package com.hmdp.controller;
 
 
 import com.hmdp.dto.LoginFormDTO;
-import com.hmdp.dto.Result;
+import com.hmdp.common.result.Result;
 import com.hmdp.dto.UserDTO;
 import com.hmdp.entity.UserInfo;
 import com.hmdp.service.IUserInfoService;
 import com.hmdp.service.IUserService;
-import com.hmdp.utils.UserHolder;
+import com.hmdp.common.context.BaseContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,7 +67,7 @@ public class UserController {
     @GetMapping("/me")
     public Result me(){
         // 获取当前登录的用户并返回
-        UserDTO user = UserHolder.getUser();
+        UserDTO user = BaseContext.getCurrentId();
         return Result.ok(user);
     }
 

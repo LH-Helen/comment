@@ -1,4 +1,4 @@
-package com.hmdp.dto;
+package com.hmdp.common.result;
 
 import lombok.Data;
 

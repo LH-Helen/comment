@@ -1,16 +1,14 @@
 package com.hmdp.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.hmdp.entity.SeckillVoucher;
 import com.hmdp.entity.VoucherOrder;
 import com.hmdp.mapper.VoucherOrderMapper;
 import com.hmdp.service.ISeckillVoucherService;
 import com.hmdp.service.IVoucherOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.hmdp.utils.RedisConstants;
-import com.hmdp.utils.RedisIdWorker;
-import com.hmdp.utils.SimpleRedisLock;
-import com.hmdp.utils.UserHolder;
+import com.hmdp.common.constant.RedisConstants;
+import com.hmdp.common.redis.RedisIdWorker;
+import com.hmdp.common.context.BaseContext;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -26,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -169,7 +166,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     @Override
     public Long setKillVoucher(Long voucherId) {
         // 获取用户id
-        Long userId = UserHolder.getUser().getId();
+        Long userId = BaseContext.getCurrentId().getId();
         // 获取订单id
         long orderId = redisIdWorker.nextId("order");
         // 执行lua脚本
