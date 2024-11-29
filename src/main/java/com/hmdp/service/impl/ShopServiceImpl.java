@@ -1,7 +1,7 @@
 package com.hmdp.service.impl;
 
 import com.hmdp.common.constant.MessageConstants;
-import com.hmdp.common.exception.ShopExistException;
+import com.hmdp.common.exception.ShopException;
 import com.hmdp.entity.Shop;
 import com.hmdp.mapper.ShopMapper;
 import com.hmdp.service.IShopService;
@@ -43,7 +43,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
                 Shop.class, this::getById, RedisConstants.CACHE_SHOP_TTL, TimeUnit.MINUTES);
 
         if(shop == null){
-            throw new ShopExistException(MessageConstants.SHOP_NOT_FOUND);
+            throw new ShopException(MessageConstants.SHOP_NOT_FOUND);
         }
         return shop;
     }
@@ -53,7 +53,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
     public void updateShop(Shop shop) {
         Long id = shop.getId();
         if (id == null) {
-            throw new ShopExistException(MessageConstants.SHOP_NOT_FOUND);
+            throw new ShopException(MessageConstants.SHOP_NOT_FOUND);
         }
         // 更新数据库
         updateById(shop);

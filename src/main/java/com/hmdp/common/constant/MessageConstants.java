@@ -9,4 +9,5 @@ public class MessageConstants {
     public static final String PHONE_ERROR = "手机号格式错误";
     public static final String CODE_ERROR = "验证码错误";
     public static final String ACCOUNT_NOT_FOUND = "账号不存在";
+    public static final String BLOG_SAVE_FAILED = "新增笔记失败";
 }
