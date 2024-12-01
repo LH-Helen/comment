@@ -166,7 +166,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     @Override
     public Long setKillVoucher(Long voucherId) {
         // 获取用户id
-        Long userId = BaseContext.getCurrentId().getId();
+        Long userId = BaseContext.getCurrentUser().getId();
         // 获取订单id
         long orderId = redisIdWorker.nextId("order");
         // 执行lua脚本

@@ -19,4 +19,6 @@ public interface IUserService extends IService<User> {
     String login(LoginFormDTO loginForm, HttpSession session);
 
     UserDTO getUserById(Long id);
+
+    void sign();
 }

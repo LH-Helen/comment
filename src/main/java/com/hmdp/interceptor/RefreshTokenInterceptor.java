@@ -42,7 +42,7 @@ public class RefreshTokenInterceptor implements HandlerInterceptor {
 
         // 保存用户到ThreadLocal
 //        UserHolder.saveUser((UserDTO) user);
-        BaseContext.setCurrentId(userDTO);
+        BaseContext.setCurrentUser(userDTO);
 
         // 刷新token有效期
         stringRedisTemplate.expire(RedisConstants.LOGIN_USER_KEY + token, RedisConstants.LOGIN_USER_TTL, TimeUnit.MINUTES);
@@ -54,6 +54,6 @@ public class RefreshTokenInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        BaseContext.removeCurrentId();
+        BaseContext.removeCurrentUser();
     }
 }

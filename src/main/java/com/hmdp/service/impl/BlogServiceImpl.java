@@ -73,7 +73,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
 
     private Boolean isBlogLiked(Long id) {
         // 登录用户
-        UserDTO user = BaseContext.getCurrentId();
+        UserDTO user = BaseContext.getCurrentUser();
         if (user == null) {
             return false;
         }
@@ -94,7 +94,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
 
     @Override
     public void likeBlog(Long id) {
-        Long userId = BaseContext.getCurrentId().getId();
+        Long userId = BaseContext.getCurrentUser().getId();
         String key = RedisConstants.BLOG_LIKED_KEY + id;
         Boolean isMember = isBlogLiked(id);
 
@@ -143,7 +143,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
     @Override
     public void saveBlog(Blog blog) {
         // 获取登录用户
-        UserDTO user = BaseContext.getCurrentId();
+        UserDTO user = BaseContext.getCurrentUser();
         blog.setUserId(user.getId());
         // 保存探店博文
         boolean isSuccess = save(blog);
@@ -164,7 +164,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
     @Override
     public ScrollResult queryBlogOfFollow(Long max, Integer offset) {
         // 获取当前用户
-        Long userId = BaseContext.getCurrentId().getId();
+        Long userId = BaseContext.getCurrentUser().getId();
         // 查询收件箱
         String key = RedisConstants.FEED_KEY + userId;
         Set<ZSetOperations.TypedTuple<String>> typedTuples = stringRedisTemplate.opsForZSet().

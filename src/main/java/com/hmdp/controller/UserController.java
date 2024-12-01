@@ -67,7 +67,7 @@ public class UserController {
     @GetMapping("/me")
     public Result me(){
         // 获取当前登录的用户并返回
-        UserDTO user = BaseContext.getCurrentId();
+        UserDTO user = BaseContext.getCurrentUser();
         return Result.ok(user);
     }
 
@@ -89,5 +89,11 @@ public class UserController {
     public Result getById(@PathVariable Long id){
         UserDTO userDTO = userService.getUserById(id);
         return Result.ok(userDTO);
+    }
+
+    @PostMapping("/sign")
+    public Result sign(){
+        userService.sign();
+        return Result.ok();
     }
 }

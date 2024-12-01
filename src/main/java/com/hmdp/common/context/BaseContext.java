@@ -5,15 +5,15 @@ import com.hmdp.dto.UserDTO;
 public class BaseContext {
     private static final ThreadLocal<UserDTO> threadLocal = new ThreadLocal<>();
 
-    public static void setCurrentId(UserDTO user){
+    public static void setCurrentUser(UserDTO user){
         threadLocal.set(user);
     }
 
-    public static UserDTO getCurrentId(){
+    public static UserDTO getCurrentUser(){
         return threadLocal.get();
     }
 
-    public static void removeCurrentId(){
+    public static void removeCurrentUser(){
         threadLocal.remove();
     }
 }

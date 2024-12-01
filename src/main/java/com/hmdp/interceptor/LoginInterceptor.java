@@ -11,7 +11,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        UserDTO userDTO = BaseContext.getCurrentId();
+        UserDTO userDTO = BaseContext.getCurrentUser();
         if (userDTO == null) {
             response.setStatus(401);
             return false;
@@ -21,6 +21,6 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        BaseContext.removeCurrentId();
+        BaseContext.removeCurrentUser();
     }
 }

@@ -39,7 +39,7 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
     @Override
     public void follow(Long followUserId, Boolean isFollow) {
         // 获取登录用户
-        Long userId = BaseContext.getCurrentId().getId();
+        Long userId = BaseContext.getCurrentUser().getId();
         if(isFollow(followUserId) == isFollow){
             if (isFollow){
                 throw new FollowException(MessageConstants.FOLLOWED);
@@ -74,14 +74,14 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
     @Override
     public boolean isFollow(Long followUserId) {
         // 获取登录用户
-        Long userId = BaseContext.getCurrentId().getId();
+        Long userId = BaseContext.getCurrentUser().getId();
         Integer count = query().eq("user_id", userId).eq("follow_user_id", followUserId).count();
         return count>0;
     }
 
     @Override
     public List<UserDTO> followCommons(Long id) {
-        Long userId = BaseContext.getCurrentId().getId();
+        Long userId = BaseContext.getCurrentUser().getId();
         String userKey = RedisConstants.FOLLOW_KEY + userId;
         String followUserKey = RedisConstants.FOLLOW_KEY + id;
         Set<String> intersect = stringRedisTemplate.opsForSet().intersect(userKey, followUserKey);
