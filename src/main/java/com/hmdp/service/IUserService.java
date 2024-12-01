@@ -21,4 +21,6 @@ public interface IUserService extends IService<User> {
     UserDTO getUserById(Long id);
 
     void sign();
+
+    int signCount();
 }

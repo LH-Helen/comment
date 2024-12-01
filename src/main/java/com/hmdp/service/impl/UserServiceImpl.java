@@ -18,6 +18,7 @@ import com.hmdp.service.IUserService;
 import com.hmdp.common.regex.RegexUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -143,5 +145,41 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         int dayOfMonth = LocalDateTime.now().getDayOfMonth();
         // 签到，写入redis，SETBIT key offset 1
         stringRedisTemplate.opsForValue().setBit(key, dayOfMonth - 1, true);
+    }
+
+    @Override
+    public int signCount() {
+        // key = ket+id+年月日
+        Long userId = BaseContext.getCurrentUser().getId();
+        String keySuffix = LocalDateTime.now().format(DateTimeFormatter.ofPattern(":yyyyMM"));
+        String key = RedisConstants.USER_SIGN_KEY + userId + keySuffix;
+        // 获取今天是本月的第几天
+        int dayOfMonth = LocalDateTime.now().getDayOfMonth();
+
+        // 获取本月截止今天为止的所有签到记录，返回的是一个十进制数字 BITFIELD sign:5:202210 GET u14 0
+        List<Long> result = stringRedisTemplate.opsForValue().bitField(
+                key,
+                BitFieldSubCommands.create().get(BitFieldSubCommands.BitFieldType.unsigned(dayOfMonth)).valueAt(0)
+        );
+
+        if (result == null || result.isEmpty()) {
+            return 0;
+        }
+
+        Long num = result.get(0);
+        if (num == null || num == 0) {
+            return 0;
+        }
+        // 循环遍历
+        int count = 0;
+        while (true) {
+            if ((num & 1) == 0) {
+                break;
+            } else {
+                count++;
+            }
+            num >>>= 1;
+        }
+        return count;
     }
 }
