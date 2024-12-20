@@ -20,6 +20,12 @@ spring:
         time-between-eviction-runs: 10s
   jackson:
     default-property-inclusion: non_null # JSON处理时忽略非空字段
+  rabbitmq:
+    host: 192.168.19.128 # 你的虚拟机IP
+    port: 5672 # 端口
+    virtual-host: /TravelKnight # 虚拟主机
+    username: TravelKnight # 用户名
+    password: 123456 # 密码
 mybatis-plus:
   type-aliases-package: com.hmdp.entity # 别名扫描包
 logging:

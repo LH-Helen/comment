@@ -1,6 +1,7 @@
 package com.hmdp.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.hmdp.common.constant.RabbitMqConstants;
 import com.hmdp.entity.VoucherOrder;
 import com.hmdp.mapper.VoucherOrderMapper;
 import com.hmdp.service.ISeckillVoucherService;
@@ -12,6 +13,7 @@ import com.hmdp.common.context.BaseContext;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -53,6 +55,9 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     @Resource
     private RedissonClient redissonClient;
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
     private static final DefaultRedisScript<Long> SECKILL_SCRIPT;
 
     static {
@@ -62,7 +67,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     }
 
     // 阻塞队列
-    private BlockingQueue<VoucherOrder> orderTasks = new ArrayBlockingQueue<>(1024 * 1024);
+//    private BlockingQueue<VoucherOrder> orderTasks = new ArrayBlockingQueue<>(1024 * 1024);
     // 线程池
     private static final ExecutorService SECKILL_ORDER_EXECUTOR = Executors.newSingleThreadExecutor();
 
@@ -142,7 +147,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     }
 
     // 创建订单
-    private void handleVoucherOrder(VoucherOrder voucherOrder) {
+    public void handleVoucherOrder(VoucherOrder voucherOrder) {
         Long userId = voucherOrder.getUserId();
         // 创建锁对象
         RLock lock = redissonClient.getLock("lock:order:" + userId);
@@ -173,8 +178,9 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         Long result = stringRedisTemplate.execute(
                 SECKILL_SCRIPT,
                 Collections.emptyList(),
-                voucherId.toString(), userId.toString(), String.valueOf(orderId)
+                voucherId.toString(), userId.toString()  // , String.valueOf(orderId)
         );
+
         int r = result.intValue();
         // 判断
         if (r != 0) {
@@ -184,6 +190,9 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
 
         // 获取代理对象
         proxy = (IVoucherOrderService) AopContext.currentProxy();
+
+        // Rabbit发送消息到队列
+        rabbitTemplate.convertAndSend(RabbitMqConstants.VOUCHER_ORDER_QUEUE, VoucherOrder.builder().userId(userId).voucherId(voucherId).id(orderId).build());
 
         return orderId;
     }
